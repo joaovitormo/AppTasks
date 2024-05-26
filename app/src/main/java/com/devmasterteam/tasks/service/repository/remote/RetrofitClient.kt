@@ -23,8 +23,8 @@ class RetrofitClient private constructor() {
                 override fun intercept(chain: Interceptor.Chain): Response {
                     val request = chain.request()
                         .newBuilder()
-                        .addHeader(TaskConstants.SHARED.TOKEN_KEY, token)
-                        .addHeader(TaskConstants.SHARED.PERSON_KEY, personKey)
+                        .addHeader(TaskConstants.HEADER.TOKEN_KEY, token)
+                        .addHeader(TaskConstants.HEADER.PERSON_KEY, personKey)
                         .build()
                     return chain.proceed(request)
                 }
