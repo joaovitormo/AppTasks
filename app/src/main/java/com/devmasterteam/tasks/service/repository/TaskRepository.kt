@@ -5,6 +5,7 @@ import com.devmasterteam.tasks.R
 import com.devmasterteam.tasks.service.constants.TaskConstants
 import com.devmasterteam.tasks.service.listener.APIListener
 import com.devmasterteam.tasks.service.model.PersonModel
+import com.devmasterteam.tasks.service.model.PriorityModel
 import com.devmasterteam.tasks.service.model.TaskModel
 import com.devmasterteam.tasks.service.repository.remote.PriorityService
 import com.devmasterteam.tasks.service.repository.remote.RetrofitClient
@@ -62,6 +63,21 @@ class TaskRepository(val context: Context) : BaseRepository() {
 
         })
 
+    }
+
+    fun delete(id: Int, listener: APIListener<Boolean>){
+        val call = remote.delete(id)
+
+        call.enqueue(object : Callback<Boolean> {
+
+            override fun onResponse(call: Call<Boolean>, response: Response<Boolean>) {
+                handleResponse(response, listener)
+            }
+
+            override fun onFailure(call: Call<Boolean>, t: Throwable) {
+                listener.onFailure(context.getString(R.string.ERROR_UNEXPECTED))
+            }
+        })
     }
 
 }

@@ -5,11 +5,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.TimePicker
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.devmasterteam.tasks.databinding.FragmentAllTasksBinding
+import com.devmasterteam.tasks.service.listener.TaskListener
 import com.devmasterteam.tasks.view.adapter.TaskAdapter
 import com.devmasterteam.tasks.viewmodel.TaskListViewModel
 
@@ -29,12 +32,38 @@ class AllTasksFragment : Fragment() {
         binding.recyclerAllTasks.layoutManager = LinearLayoutManager(context)
         binding.recyclerAllTasks.adapter = adapter
 
+        val listener = object : TaskListener{
+            override fun onListClick(id: Int) {
+                TODO("Not yet implemented")
+            }
+
+            override fun onDeleteClick(id: Int) {
+                viewModel.delete(id)
+            }
+
+            override fun onCompleteClick(id: Int) {
+                TODO("Not yet implemented")
+            }
+
+            override fun onUndoClick(id: Int) {
+                TODO("Not yet implemented")
+            }
+
+        }
+
+        adapter.attachListener(listener)
+
         viewModel.list()
 
         // Cria os observadores
         observe()
 
         return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.list()
     }
 
     override fun onDestroyView() {
@@ -45,6 +74,12 @@ class AllTasksFragment : Fragment() {
     private fun observe() {
         viewModel.tasks.observe(viewLifecycleOwner){
             adapter.updateTasks(it)
+        }
+
+        viewModel.delete.observe(viewLifecycleOwner){
+            if(!it.status()) {
+                Toast.makeText(context, it.message(), Toast.LENGTH_SHORT).show()
+            }
         }
     }
 }
