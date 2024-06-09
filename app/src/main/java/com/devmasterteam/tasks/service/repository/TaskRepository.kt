@@ -43,7 +43,7 @@ class TaskRepository(context: Context) : BaseRepository(context) {
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
-    fun listOverduo(listener: APIListener<List<TaskModel>>){
+    fun listOverdue(listener: APIListener<List<TaskModel>>){
         if (!isConnectionAvailable()){
             listener.onFailure(context.getString(R.string.ERROR_INTERNET_CONNECTION))
             return
