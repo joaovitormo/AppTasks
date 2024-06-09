@@ -1,6 +1,8 @@
 package com.devmasterteam.tasks.service.repository
 
 import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.devmasterteam.tasks.R
 import com.devmasterteam.tasks.service.constants.TaskConstants
 import com.devmasterteam.tasks.service.listener.APIListener
@@ -12,20 +14,18 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class PersonRepository(val context: Context): BaseRepository() {
+class PersonRepository(context: Context) : BaseRepository(context) {
 
     private val remote = RetrofitClient.getService(PersonService::class.java)
+    @RequiresApi(Build.VERSION_CODES.M)
     fun login(email: String, password: String, listener: APIListener<PersonModel>) {
-        val call = remote.login(email, password)
-        call.enqueue(object : Callback<PersonModel>{
-            override fun onResponse(call: Call<PersonModel>, response: Response<PersonModel>) {
-                handleResponse(response, listener)
-            }
+        if (!isConnectionAvailable()){
+            listener.onFailure(context.getString(R.string.ERROR_INTERNET_CONNECTION))
+            return
+        }
 
-            override fun onFailure(call: Call<PersonModel>, t: Throwable) {
-                listener.onFailure(context.getString(R.string.ERROR_UNEXPECTED))
-            }
-        })
+        val call = remote.login(email, password)
+        executeCall(call, listener)
     }
 
 }

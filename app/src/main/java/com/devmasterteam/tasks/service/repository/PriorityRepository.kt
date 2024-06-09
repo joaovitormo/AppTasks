@@ -1,6 +1,8 @@
 package com.devmasterteam.tasks.service.repository
 
 import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.devmasterteam.tasks.R
 import com.devmasterteam.tasks.service.constants.TaskConstants
 import com.devmasterteam.tasks.service.listener.APIListener
@@ -14,7 +16,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class PriorityRepository(val context: Context): BaseRepository() {
+class PriorityRepository(context: Context) : BaseRepository(context){
 
     private val remote = RetrofitClient.getService(PriorityService::class.java)
     private val database = TaskDatabase.getDatabase(context).priorityDAO()
@@ -29,21 +31,14 @@ class PriorityRepository(val context: Context): BaseRepository() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     fun list(listener : APIListener<List<PriorityModel>>) {
+        if (!isConnectionAvailable()){
+            listener.onFailure(context.getString(R.string.ERROR_INTERNET_CONNECTION))
+            return
+        }
         val call = remote.list()
-
-        call.enqueue(object : Callback<List<PriorityModel>> {
-            override fun onResponse(
-                call: Call<List<PriorityModel>>,
-                response: Response<List<PriorityModel>>
-            ) {
-                handleResponse(response, listener)
-            }
-
-            override fun onFailure(call: Call<List<PriorityModel>>, t: Throwable) {
-                listener.onFailure(context.getString(R.string.ERROR_UNEXPECTED))
-            }
-        })
+        executeCall(call, listener)
     }
 
     fun list(): List<PriorityModel> {

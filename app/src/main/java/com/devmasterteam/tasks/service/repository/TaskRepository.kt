@@ -1,6 +1,8 @@
 package com.devmasterteam.tasks.service.repository
 
 import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.devmasterteam.tasks.R
 import com.devmasterteam.tasks.service.constants.TaskConstants
 import com.devmasterteam.tasks.service.listener.APIListener
@@ -15,69 +17,109 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class TaskRepository(val context: Context) : BaseRepository() {
+class TaskRepository(context: Context) : BaseRepository(context) {
 
     private val remote = RetrofitClient.getService(TaskService::class.java)
 
+    @RequiresApi(Build.VERSION_CODES.M)
     fun list(listener: APIListener<List<TaskModel>>){
+        if (!isConnectionAvailable()){
+            listener.onFailure(context.getString(R.string.ERROR_INTERNET_CONNECTION))
+            return
+        }
+
         val call = remote.list()
-        list(call, listener)
+        executeCall(call, listener)
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     fun listNext(listener: APIListener<List<TaskModel>>){
+        if (!isConnectionAvailable()){
+            listener.onFailure(context.getString(R.string.ERROR_INTERNET_CONNECTION))
+            return
+        }
         val call = remote.listNext()
-        list(call, listener)
+        executeCall(call, listener)
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     fun listOverduo(listener: APIListener<List<TaskModel>>){
+        if (!isConnectionAvailable()){
+            listener.onFailure(context.getString(R.string.ERROR_INTERNET_CONNECTION))
+            return
+        }
+
         val call = remote.listOverduo()
-        list(call, listener)
+        executeCall(call, listener)
     }
 
-    private fun list(call : Call<List<TaskModel>>, listener: APIListener<List<TaskModel>>){
-        call.enqueue(object : Callback<List<TaskModel>>{
-            override fun onResponse(
-                call: Call<List<TaskModel>>,
-                response: Response<List<TaskModel>>
-            ) {
-                handleResponse(response, listener)
 
-            }
-
-            override fun onFailure(call: Call<List<TaskModel>>, t: Throwable) {
-                listener.onFailure(context.getString(R.string.ERROR_UNEXPECTED))
-            }
-        })
-    }
-
+    @RequiresApi(Build.VERSION_CODES.M)
     fun create(task: TaskModel, listener: APIListener<Boolean>) {
+        if (!isConnectionAvailable()){
+            listener.onFailure(context.getString(R.string.ERROR_INTERNET_CONNECTION))
+            return
+        }
+
         val call = remote.create(task.priorityId, task.description, task.dueDate, task.complete)
-        call.enqueue(object : Callback<Boolean>{
-            override fun onResponse(call: Call<Boolean>, response: Response<Boolean>) {
-                handleResponse(response, listener)
-            }
-
-            override fun onFailure(call: Call<Boolean>, t: Throwable) {
-                listener.onFailure(context.getString(R.string.ERROR_UNEXPECTED))
-            }
-
-        })
+        executeCall(call, listener)
 
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
+    fun update(task: TaskModel, listener: APIListener<Boolean>) {
+        if (!isConnectionAvailable()){
+            listener.onFailure(context.getString(R.string.ERROR_INTERNET_CONNECTION))
+            return
+        }
+
+        val call = remote.update(task.id, task.priorityId, task.description, task.dueDate, task.complete)
+        executeCall(call, listener)
+
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
     fun delete(id: Int, listener: APIListener<Boolean>){
+        if (!isConnectionAvailable()){
+            listener.onFailure(context.getString(R.string.ERROR_INTERNET_CONNECTION))
+            return
+        }
+
         val call = remote.delete(id)
+        executeCall(call, listener)
+    }
 
-        call.enqueue(object : Callback<Boolean> {
+    @RequiresApi(Build.VERSION_CODES.M)
+    fun load(id: Int, listener: APIListener<TaskModel>){
+        if (!isConnectionAvailable()){
+            listener.onFailure(context.getString(R.string.ERROR_INTERNET_CONNECTION))
+            return
+        }
 
-            override fun onResponse(call: Call<Boolean>, response: Response<Boolean>) {
-                handleResponse(response, listener)
-            }
+        val call = remote.load(id)
+        executeCall(call, listener)
+    }
 
-            override fun onFailure(call: Call<Boolean>, t: Throwable) {
-                listener.onFailure(context.getString(R.string.ERROR_UNEXPECTED))
-            }
-        })
+    @RequiresApi(Build.VERSION_CODES.M)
+    fun complete(id: Int, listener: APIListener<Boolean>){
+        if (!isConnectionAvailable()){
+            listener.onFailure(context.getString(R.string.ERROR_INTERNET_CONNECTION))
+            return
+        }
+
+        val call = remote.complete(id)
+        executeCall(call, listener)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    fun undo(id: Int, listener: APIListener<Boolean>){
+        if (!isConnectionAvailable()){
+            listener.onFailure(context.getString(R.string.ERROR_INTERNET_CONNECTION))
+            return
+        }
+
+        val call = remote.undo(id)
+        executeCall(call, listener)
     }
 
 }
